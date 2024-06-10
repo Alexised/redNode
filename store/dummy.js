@@ -14,7 +14,11 @@ async function get(tabla, id) {
 }
 
 async function upsert(tabla, data) {
+  if(!db[tabla]) {
+    db[tabla] = [];
+  }
   await db[tabla].push(data);
+  return data;
 }
 
 async function remove(tabla, id) {
