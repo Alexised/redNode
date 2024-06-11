@@ -18,6 +18,7 @@ async function upsert(tabla, data) {
     db[tabla] = [];
   }
   await db[tabla].push(data);
+  console.log(data)
   return data;
 }
 
