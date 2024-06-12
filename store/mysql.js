@@ -59,6 +59,8 @@ const get = (table, id) => {
 };
 
 const insert = (table, data) => {
+  console.log(table)
+  console.log(data)
   return new Promise((resolve, reject) => {
     connection.query(`INSERT INTO ?? SET ?`, [table, data], (err, result) => {
       if (err) return reject(err);
@@ -75,16 +77,6 @@ const update = (table, data) => {
     });
   });
 };
-
-const upsert = async (table, data) => {
-  const row = await get(table, data.id);
-  if (!row) {
-    return insert(table, data);
-  } else {
-    return update(table, data);
-  }
-};
-
 const query = (table, query,join) => {
   let joinQuery = '';
   if (join) {
@@ -104,6 +96,7 @@ const query = (table, query,join) => {
 module.exports = {
   list,
   get,
-  upsert,
+  insert,
+  update,
   query,
 };

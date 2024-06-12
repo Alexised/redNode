@@ -1,6 +1,5 @@
 
 const TABLA = 'user';
-const { nanoid } = require('nanoid');
 const auth = require('../auth');
 
 module.exports = function (injectedStore) {
@@ -18,12 +17,6 @@ module.exports = function (injectedStore) {
     const user = {
       name: data.name,
       username: data.username,
-    }
-
-    if (data.id) {
-      user.id = data.id;
-    } else {
-      user.id = nanoid();
     }
 
     if (data.password || data.username) {
