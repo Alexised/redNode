@@ -12,4 +12,7 @@ module.exports = {
     password: process.env.MYSQL_PASS || 'alexis123',
     database: process.env.MYSQL_DB || 'redNode',
   },
+  mysqlService: {
+    port: process.env.MYSQL_SRV_PORT || '3001',
+  },
 }

@@ -3,16 +3,9 @@ const secure = require('./secure');
 const response = require('../../../network/response');
 const Controller = require('./index');
 const router = express.Router();
-// Routes
-router.get('/', list)
-router.post('/follow/:id', secure('follow'), follow);
-router.get('/:id/following', following);
-router.get('/:id', get);
-router.post('/', upsert);
-router.put('/', secure('update'), upsert);
 
 // Internal functions
-async function list(req, res ,next) {
+const list = async (req, res ,next) => {
   try {
     const list = await Controller.list()
     response.success(req, res, list, 200)
@@ -21,7 +14,7 @@ async function list(req, res ,next) {
   }
 }
 
-async function get(req, res, next) {
+const get = async (req, res, next) => {
   try {
     const user = await Controller.get(req.params.id)
     response.success(req, res, user, 200)
@@ -30,7 +23,7 @@ async function get(req, res, next) {
   }
 }
 
-async function upsert(req, res, next) {
+const upsert = async (req, res, next) => {
   try {
     const user = await Controller.upsert(req.body)
     response.success(req, res, user, 201)
@@ -39,7 +32,7 @@ async function upsert(req, res, next) {
   }
 }
 
-async function follow(req, res, next) {
+const follow = async (req, res, next) => {
   try {
     const data = {
       user: req.user.id,
@@ -52,7 +45,7 @@ async function follow(req, res, next) {
   }
 }
 
-function following(req, res, next) {
+const following = async (req, res, next) => {
 	return Controller.following(req.params.id)
 		.then( (data) => {
 			return response.success(req, res, data, 200);
@@ -60,5 +53,12 @@ function following(req, res, next) {
 		.catch(next);
 }
 
+// Routes
+router.get('/', list)
+router.post('/follow/:id', secure('follow'), follow);
+router.get('/:id/following', following);
+router.get('/:id', get);
+router.post('/', upsert);
+router.put('/', secure('update'), upsert);
 
 module.exports = router;
