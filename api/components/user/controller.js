@@ -1,10 +1,10 @@
 
 const TABLA = 'user';
-const { nanoid }  = require('nanoid');
+const { nanoid } = require('nanoid');
 const auth = require('../auth');
 
 module.exports = function (injectedStore) {
-  let store = injectedStore ||  require('../../../store/dummy');
+  let store = injectedStore || require('../../../store/dummy');
 
   function list() {
     return store.list(TABLA);
@@ -37,9 +37,26 @@ module.exports = function (injectedStore) {
     return store.upsert(TABLA, user);
   }
 
+  function follow(data) {
+    const { user, follow } = data;
+    return store.upsert(TABLA + '_follow', {
+      user_from: user,
+      user_to: follow,
+    });
+  }
+
+  async function following(user) {
+    const join = {}
+    join[TABLA] = 'user_to'; // { user: 'user_to' }
+    const query = { user_from: user };
+    return await store.query(TABLA + '_follow', query, join);
+  }
+
   return {
     list,
     get,
     upsert,
+    follow,
+    following,
   };
 }

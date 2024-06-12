@@ -5,6 +5,8 @@ const Controller = require('./index');
 const router = express.Router();
 // Routes
 router.get('/', list)
+router.post('/follow/:id', secure('follow'), follow);
+router.get('/:id/following', following);
 router.get('/:id', get);
 router.post('/', upsert);
 router.put('/', secure('update'), upsert);
@@ -36,5 +38,27 @@ async function upsert(req, res, next) {
     next(error);
   }
 }
+
+async function follow(req, res, next) {
+  try {
+    const data = {
+      user: req.user.id,
+      follow: req.params.id,
+    }
+    const user = await Controller.follow(data)
+    response.success(req, res, user, 201)
+  } catch (error) {
+    next(error);
+  }
+}
+
+function following(req, res, next) {
+	return Controller.following(req.params.id)
+		.then( (data) => {
+			return response.success(req, res, data, 200);
+		})
+		.catch(next);
+}
+
 
 module.exports = router;

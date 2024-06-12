@@ -35,66 +35,75 @@ function handleCon() {
 
 handleCon();
 
-function list(table) {
+const list = (table) => {
   return new Promise((resolve, reject) => {
-    connection.query(`SELECT * FROM ${table}`, (err, data) => {
+    connection.query(`SELECT * FROM ??`, [table], (err, data) => {
       if (err) return reject(err);
       resolve(data);
     });
   });
-}
+};
 
-function get(table, id) {
+
+const get = (table, id) => {
   return new Promise((resolve, reject) => {
-    connection.query(`SELECT * FROM ${table} WHERE id='${id}'`, (err, data) => {
+    if (!id) {
+      resolve(null); // Si el id está vacío, resolvemos con null sin realizar la consulta
+    } else {
+      connection.query(`SELECT * FROM ?? WHERE id = ?`, [table, id], (err, data) => {
+        if (err) return reject(err);
+        resolve(data[0] || null);
+      });
+    }
+  });
+};
+
+const insert = (table, data) => {
+  return new Promise((resolve, reject) => {
+    connection.query(`INSERT INTO ?? SET ?`, [table, data], (err, result) => {
       if (err) return reject(err);
-      resolve(data);
+      resolve(result);
     });
   });
-}
+};
 
-function insert(table, data) {
-  console.log(table)
-  console.log(data)
+const update = (table, data) => {
   return new Promise((resolve, reject) => {
-    connection.query(`INSERT INTO ${table} SET ?`, data, (err, result) => {
+    connection.query(`UPDATE ?? SET ? WHERE id = ?`, [table, data, data.id], (err, result) => {
       if (err) return reject(err);
       resolve(result);
-    })
-  })
-}
+    });
+  });
+};
 
-function update(table, data) {
-  return new Promise((resolve, reject) => {
-    connection.query(`UPDATE ${table} SET ? WHERE id=?`, [data, data.id], (err, result) => {
-      if (err) return reject(err);
-      resolve(result);
-    })
-  })
-}
-
-async function upsert(table, data) {
-  console.log(data)
+const upsert = async (table, data) => {
   const row = await get(table, data.id);
-  if (row.length === 0) {
+  if (!row) {
     return insert(table, data);
   } else {
     return update(table, data);
   }
-}
+};
 
-function query(table, query) {
+const query = (table, query,join) => {
+  let joinQuery = '';
+  if (join) {
+      const key = Object.keys(join)[0];
+      const val = join[key];
+      joinQuery = `JOIN ${key} ON ${table}.${val} = ${key}.id`;
+  }
+
   return new Promise((resolve, reject) => {
-      connection.query(`SELECT * FROM ${table} WHERE ?`, query, (err, res) => {
-          if (err) return reject(err);
-          resolve(res[0] || null);
-      })
-  })
-}
+    connection.query(`SELECT * FROM ${table} ${joinQuery} WHERE ${table}.?`, query, (err, res) => {
+        if (err) return reject(err);
+        resolve(res[0] || null);
+    })
+})
+};
 
 module.exports = {
   list,
   get,
   upsert,
-  query
+  query,
 };
